@@ -14,36 +14,33 @@ npm install soycap-js
 import SoycapJS from 'soycap-js';
 
 const api = new SoycapJS({
-    rpcUrl: 'https://mainnet.helius-rpc.com/?api-key=your-helius-key',
-    apiUrl: 'https://www.soycap.io/api',
-    apiKey: 'merchant-api-key'
+  rpcUrl: 'https://mainnet.helius-rpc.com/?api-key=your-helius-key',
+  apiUrl: 'https://www.soycap.io/api',
+  apiKey: 'merchant-api-key'
 });
 
 (async () => {
-    try {
-        const REFERRAL_ID = `SOYCAP_REF_ID`;
-        const keypair = api.loadKeypair('./keypair.json');
-        const authToken = await api.authenticateMerchant();
+  try {
+    const REFERRAL_ID = 'SOYCAP_REF_ID';
+    const keypair = api.loadKeypair('./keypair.json');
+    const authToken = await api.authenticateMerchant();
+    
+    // Register conversion with business value
+    const REWARD_USDC = 0.1;
+    const BUSINESS_VALUE = 15; // Gross revenue per conversion
+    const conversion = await api.registerConversion(REFERRAL_ID, REWARD_USDC, BUSINESS_VALUE, authToken, keypair);
 
-        // Register conversion for REFERRAL_ID
-        const REWARD_USDC = 0.1;
-        const conversion = await api.registerConversion(REFERRAL_ID, REWARD_USDC, authToken, keypair);
+    // Extract campaign and conversion IDs from the conversion metadata
+    const CAMPAIGN_ID = conversion.instruction.metadata.campaignId;
+    const CONVERSION_ID = conversion.instruction.metadata.conversionId;
 
-        // Update conversion with additional metadata (business value)
-        const updatedConversion = await api.updateConversion(CONVERSION_ID, {
-            campaignId: CAMPAIGN_ID,
-            referralId: REFERRAL_ID,
-            businessValue: 15 // conversion's business value (gross revenue per conversion)
-        }, authToken);
+    // Distribute reward
+    await api.distributeReward(CAMPAIGN_ID, REFERRAL_ID, CONVERSION_ID, authToken, keypair);
 
-        // Distribute reward
-        const CAMPAIGN_ID = conversion.instruction.metadata.campaignId;
-        const CONVERSION_ID = conversion.instruction.metadata.conversionId;
-
-        await api.distributeReward(CAMPAIGN_ID, REFERRAL_ID, CONVERSION_ID, authToken, keypair);
-    } catch (error) {
-        console.error(error);
-    }
+    console.log('Registered and updated conversion:', conversion.conversion);
+  } catch (error) {
+    console.error(error);
+  }
 })();
 ```
 

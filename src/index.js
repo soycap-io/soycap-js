@@ -138,11 +138,24 @@ class SoycapJS {
     }
   }
 
-  async registerConversion(referralId, amount, token, keypair) {
+  async registerConversion(referralId, amount, businessValue, token, keypair) {
     try {
       const txnInstruction = await this.getRegisterConversionTransactionInstruction(referralId, amount, keypair.publicKey.toString(), token);
       const signature = await this.signAndSendTransaction(txnInstruction.instruction, keypair);
-      return { instruction: txnInstruction, signature };
+
+			const CAMPAIGN_ID = txnInstruction.metadata.campaignId;
+			const CONVERSION_ID = txnInstruction.metadata.conversionId;
+
+			// Update conversion with additional metadata (business value)
+			const updatedConversion = await this.updateConversion(CONVERSION_ID, {
+					campaignId: CAMPAIGN_ID,
+					referralId: referralId,
+					ownerAddress: keypair.publicKey.toString(),
+					rewardsPendingUSDC: amount,
+					businessValue: businessValue // conversion's business value (gross revenue per conversion)
+			}, token);
+
+      return { instruction: txnInstruction, signature, conversion: updatedConversion };
     } catch (err) {
       console.error('Failed to register conversion:', err);
       throw err;
