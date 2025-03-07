@@ -1,0 +1,28 @@
+{
+  "name": "soycap-js",
+  "version": "1.0.0",
+  "description": "Node.js client for SoyCap.io API",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "solana",
+    "soycap.io",
+    "api",
+    "conversion",
+    "rewards",
+    "affiliate program"
+  ],
+  "author": "SoyCap.io",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "node-fetch": "^3.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soycap-io/soycap-js.git"
+  }
+}
