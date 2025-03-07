@@ -1,11 +1,12 @@
 {
   "name": "soycap-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node.js client for SoyCap.io API",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test": "node ./test/merchant.js"
+    "test": "node ./test/merchant.js",
+    "publish": "npm publish --access public"
   },
   "keywords": [
     "solana",
