@@ -49,11 +49,11 @@ console.log('Keypair loaded:', keypair.publicKey.toString());
 
 ## Generate Keypair JSON file from Phantow Secret Phrase
 
-You can use this method to create `keypair.json` file form your Phantom Wallet Secret Phrase.  For more details on how to extract secret phase from Phantom reference to [SoyCap.io Docs - Integration - Keypairs](https://docs.soycap.io/integration/keypairs#step-1-export-secret-phrase-from-phantom-wallet)
+You can use this method to create `keypair.json` file form your Phantom Wallet Private Key. For more details on how to extract private key from Phantom reference to [SoyCap.io Docs - Integration - Keypairs](https://docs.soycap.io/integration/keypairs#step-1-export-secret-phrase-from-phantom-wallet)
 
 ```js
 // Replace with your private key from Phantom Wallet
-const PRIVATE_KEY = "your-secret-phrase-as-base58";
+const PRIVATE_KEY = "your-private-key";
 const PUBLIC_KEY = "your-public-key"; 
 
 api.generateKeypairJSON(PRIVATE_KEY, PUBLIC_KEY, './keypair.json');
