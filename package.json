@@ -1,6 +1,6 @@
 {
   "name": "soycap-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Node.js client for SoyCap.io API",
   "main": "src/index.js",
   "type": "module",
