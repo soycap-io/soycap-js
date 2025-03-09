@@ -120,17 +120,33 @@ class SoycapJS {
         programId: new PublicKey(txnInstruction.programId),
         data: Buffer.from(txnInstruction.data),
       });
-
-      const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash();
+  
+      const { blockhash } = await this.connection.getLatestBlockhash();
       const transaction = new Transaction().add(instruction);
       transaction.feePayer = feePayer;
       transaction.recentBlockhash = blockhash;
-
+  
+      try {
+        // Simulate transaction before sending
+        const simulationResult = await this.connection.simulateTransaction(transaction);
+        if (simulationResult.value.err) {
+          throw new Error(`Preflight simulation failed: ${JSON.stringify(simulationResult.value.err)}`);
+        }
+      } catch (simErr) {
+        console.error("Transaction simulation failed:", simErr);
+        throw simErr;
+      }
+  
+      // If simulation passes, send the transaction
       const signature = await sendAndConfirmTransaction(this.connection, transaction, [keypair], {
         commitment: "confirmed",
         preflightCommitment: "processed",
       });
-
+  
+      if (!signature) {
+        throw new Error("Transaction failed: No signature returned.");
+      }
+  
       return signature;
     } catch (err) {
       console.error("Transaction Failed:", err.message || err);
@@ -158,6 +174,98 @@ class SoycapJS {
       return { instruction: txnInstruction, signature, conversion: updatedConversion };
     } catch (err) {
       console.error('Failed to register conversion:', err);
+      throw err;
+    }
+  }
+
+  async getUnpaidMerchantConversions(merchantId, token) {
+    try {
+      const requestUrl = `${this.apiUrl}/merchants/offchain/${merchantId}/conversions/unpaid`;
+      const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(`Error: ${errorResponse.error} - ${errorResponse.message}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to get unpaid merchant conversions:', err);
+      throw err;
+    }
+  }
+
+  async getUnpaidCampaignConversions(campaignId, token) {
+    try {
+      const requestUrl = `${this.apiUrl}/campaigns/offchain/${campaignId}/conversions/unpaid`;
+      const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(`Error: ${errorResponse.error} - ${errorResponse.message}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to get unpaid campaign conversions:', err);
+      throw err;
+    }
+  }
+
+  async getCampaigns(merchantId, token) {
+    try {
+      const requestUrl = `${this.apiUrl}/campaigns/offchain/campaigns/${merchantId}`;
+      const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(`Error: ${errorResponse.error} - ${errorResponse.message}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to get campaigns:', err);
+      throw err;
+    }
+  }
+
+  async getCampaign(campaignId, token) {
+    try {
+      const requestUrl = `${this.apiUrl}/campaigns/offchain/${campaignId}`;
+      const response = await fetch(requestUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(`Error: ${errorResponse.error} - ${errorResponse.message}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to get campaign:', err);
       throw err;
     }
   }
