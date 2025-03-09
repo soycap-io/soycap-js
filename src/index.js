@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { PublicKey, Keypair, Transaction, sendAndConfirmTransaction, Connection, TransactionInstruction } from '@solana/web3.js';
 import fetch from 'node-fetch';
+import base58 from 'bs58';
 
 class SoycapJS {
   constructor({ rpcUrl, apiUrl, apiKey }) {
@@ -12,6 +13,25 @@ class SoycapJS {
   loadKeypair(keypairPath = './keypair.json') {
     const keypairData = JSON.parse(fs.readFileSync(keypairPath, 'utf8'));
     return Keypair.fromSecretKey(new Uint8Array(keypairData));
+  }
+
+  generateKeypairJSON(privateKeyBase58, expectedPublicKey, outputPath = './keypair.json') {
+    try {
+      const secretKey = base58.decode(privateKeyBase58);
+      const keypair = Keypair.fromSecretKey(secretKey);
+
+      if (keypair.publicKey.toString() !== expectedPublicKey) {
+        throw new Error('Public key does not match the provided private key.');
+      }
+
+      fs.writeFileSync(outputPath, JSON.stringify(Array.from(secretKey), null, 2));
+      console.log(`✅ Keypair saved to ${outputPath}`);
+      
+      return keypair;
+    } catch (err) {
+      console.error('❌ Failed to generate keypair JSON:', err);
+      throw err;
+    }
   }
 
   async authenticateMerchant() {
